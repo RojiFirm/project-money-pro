@@ -1,34 +1,18 @@
-/* ============================================================
-   Money Pro — components/navbar/navbar.js
-   Shows the current page title + a contextual "+ Add" button.
-   Each page module can expose `addAction: { label, run() }` —
-   navbar reads it after every route change and wires the click.
-   ============================================================ */
-window.NavbarComponent = (function () {
-  function applyRoute(route) {
-    const title = document.getElementById("nav-title");
-    const eyebrow = document.getElementById("nav-eyebrow");
-    const addBtn = document.getElementById("nav-add-btn");
-    if (title) title.textContent = route.label;
-    if (eyebrow) eyebrow.textContent = "Money Pro / " + route.label;
+/**
+ * components/navbar/navbar.js
+ * Renders a slim date strip. Page-specific titles live in each
+ * page's own header (see each page's html file) so the topbar stays
+ * a shared, content-agnostic shell element.
+ */
+export function renderNavbar(container) {
+  const today = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+  }).format(new Date());
 
-    const page = window.Pages && window.Pages[route.key];
-    if (addBtn) {
-      if (page && page.addAction) {
-        addBtn.style.display = "";
-        addBtn.textContent = "+ " + page.addAction.label;
-        addBtn.onclick = () => page.addAction.run();
-      } else {
-        addBtn.style.display = "none";
-      }
-    }
-  }
-
-  async function mount(root) {
-    const res = await fetch("components/navbar/navbar.html");
-    root.innerHTML = await res.text();
-    Utils.on("route:changed", e => applyRoute(e.detail.route));
-  }
-
-  return { mount };
-})();
+  container.innerHTML = `
+    <div class="topbar">
+      <span class="eyebrow">Project Money PRO</span>
+      <span class="date">${today}</span>
+    </div>
+  `;
+}

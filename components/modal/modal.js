@@ -1,51 +1,64 @@
-/* ============================================================
-   Money Pro — components/modal/modal.js
-   Generic modal shell. Any page can call:
-     Modal.open({ title, bodyHtml, onMount, onSubmit })
-   `onMount(bodyEl)` wires field listeners; `onSubmit(bodyEl)`
-   runs on form submit and should return false to keep it open.
-   ============================================================ */
-window.ModalComponent = (function () {
-  let overlay, titleEl, bodyEl, closeBtn;
+/**
+ * components/modal/modal.js
+ * Usage:
+ *   import { openModal, closeModal } from '/components/modal/modal.js';
+ *   openModal({ title: 'New Account', bodyHTML, onSubmit: async () => {...} });
+ */
+let stylesLoaded = false;
 
-  function close() {
-    overlay.hidden = true;
-    bodyEl.innerHTML = "";
-  }
+function ensureStyles() {
+  if (stylesLoaded) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = '/components/modal/modal.css';
+  document.head.appendChild(link);
+  stylesLoaded = true;
+}
 
-  function open({ title, bodyHtml, onMount, onSubmit }) {
-    titleEl.textContent = title;
-    bodyEl.innerHTML = bodyHtml;
-    overlay.hidden = false;
-    if (onMount) onMount(bodyEl);
+export function openModal({ title, bodyHTML, submitLabel = 'Save', onSubmit }) {
+  ensureStyles();
+  closeModal();
 
-    const form = bodyEl.querySelector("form");
-    if (form && onSubmit) {
-      form.addEventListener("submit", ev => {
-        ev.preventDefault();
-        const result = onSubmit(bodyEl, form);
-        if (result !== false) close();
-      });
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.id = 'active-modal';
+  backdrop.innerHTML = `
+    <div class="modal-box" role="dialog" aria-modal="true" aria-label="${title}">
+      <div class="modal-head">
+        <h3>${title}</h3>
+        <button class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">${bodyHTML}</div>
+      <div class="modal-foot">
+        <button class="btn" data-action="cancel">Cancel</button>
+        <button class="btn btn-primary" data-action="submit">${submitLabel}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  requestAnimationFrame(() => backdrop.classList.add('visible'));
+
+  backdrop.querySelector('.modal-close').addEventListener('click', closeModal);
+  backdrop.querySelector('[data-action="cancel"]').addEventListener('click', closeModal);
+  backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeModal(); });
+
+  backdrop.querySelector('[data-action="submit"]').addEventListener('click', async (e) => {
+    if (typeof onSubmit !== 'function') return closeModal();
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    try {
+      await onSubmit(backdrop);
+      closeModal();
+    } catch (err) {
+      btn.disabled = false;
+      alert(err.message || 'Something went wrong. Check the form and try again.');
     }
-  }
+  });
 
-  function mount(root) {
-    root.innerHTML = ""; // overlay is injected via fetch below, root is #modal-root
-    fetch("components/modal/modal.html")
-      .then(r => r.text())
-      .then(html => {
-        root.innerHTML = html;
-        overlay = document.getElementById("modal-overlay");
-        titleEl = document.getElementById("modal-title");
-        bodyEl = document.getElementById("modal-body");
-        closeBtn = document.getElementById("modal-close");
-        closeBtn.addEventListener("click", close);
-        overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
-        document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
-      });
-  }
+  return backdrop;
+}
 
-  return { mount, open, close };
-})();
-// Global convenience alias used throughout pages/*.js
-window.Modal = window.ModalComponent;
+export function closeModal() {
+  const existing = document.getElementById('active-modal');
+  if (existing) existing.remove();
+}

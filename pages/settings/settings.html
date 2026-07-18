@@ -1,31 +1,18 @@
-<div class="page-head">
+<div class="page-header">
   <div>
-    <span class="page-eyebrow">Configure Money Pro</span>
     <h1>Settings</h1>
+    <div class="subtitle">Control center — categories, account/liability/asset/savings types, taxes &amp; system prefs</div>
   </div>
 </div>
 
-<div class="settings-grid">
-  <div class="card card-pad">
-    <h3 style="margin-bottom:14px;font-size:15px;">Preferences</h3>
-    <div class="field"><label>Currency</label>
-      <select id="set-currency"></select>
-    </div>
-  </div>
-
-  <div class="card card-pad">
-    <h3 style="margin-bottom:6px;font-size:15px;">Database</h3>
-    <p class="settings-note">Money Pro stores everything locally in your browser. Export a backup any time, or point <code>core/database.js</code> at a Google Sheet later — see the comment at the top of that file.</p>
-    <div class="settings-actions">
-      <button class="btn" id="set-export">Export backup (.json)</button>
-      <label class="btn" for="set-import-file">Import backup</label>
-      <input type="file" id="set-import-file" accept="application/json" hidden>
-    </div>
-  </div>
-
-  <div class="card card-pad">
-    <h3 style="margin-bottom:6px;font-size:15px;">Reset</h3>
-    <p class="settings-note">Wipe accounts, assets, liabilities, transactions and transfers, and reload the starter demo data.</p>
-    <button class="btn btn-danger" id="set-reset">Reset to demo data</button>
-  </div>
+<div class="settings-tabs" id="settings-tabs">
+  <button class="tab-btn active" data-tab="categories">Categories</button>
+  <button class="tab-btn" data-tab="account_types">Accounts</button>
+  <button class="tab-btn" data-tab="liability_types">Liabilities</button>
+  <button class="tab-btn" data-tab="asset_types">Assets</button>
+  <button class="tab-btn" data-tab="savings_types">Savings</button>
+  <button class="tab-btn" data-tab="tax">Tax Rules</button>
+  <button class="tab-btn" data-tab="system">System</button>
 </div>
+
+<div id="settings-panel"></div>

@@ -1,67 +1,100 @@
-# Money Pro
+# Project Money PRO
 
-A personal finance ledger — accounts, assets, liabilities, transactions
-and transfers, with a live net-worth dashboard. Plain HTML/CSS/JS,
-no build step, no framework.
+Advanced personal finance management web app — transactions, transfers,
+liabilities, assets, savings goals, a configurable tax rules engine, and
+unified dashboards, built on vanilla HTML/CSS/JS with Supabase as the backend.
 
-## Run it
+## Project structure
 
-Browsers block `fetch()` of local files over `file://`, and this app
-loads each page's HTML fragment with `fetch()`, so serve the folder
-over HTTP instead of double-clicking `index.html`:
+```
+money-pro/
+├── index.html                  # App shell (sidebar + navbar + route outlet)
+├── core/
+│   ├── config.js                # Supabase client setup (fill in your keys)
+│   ├── api.js                   # Generic CRUD service (+ in-memory offline fallback)
+│   ├── database.js               # Per-table services, tax engine, dashboard aggregations
+│   ├── router.js                 # Hash-based SPA router
+│   ├── app.js                    # Bootstraps the app, registers routes
+│   └── utils.js                  # Formatting & small helpers
+├── components/
+│   ├── sidebar/                  # Left nav (numbered per the build roadmap)
+│   ├── navbar/                   # Top date strip + toast container styles
+│   └── modal/                    # Reusable dialog used by every "New X" form
+├── pages/
+│   ├── settings/                 # Control Center: categories, types, tax rules, system prefs
+│   └── properties/
+│       ├── accounts/
+│       ├── transactions/
+│       ├── transfer/
+│       ├── liabilities/
+│       ├── assets/
+│       ├── savings/
+│       └── dashboard/
+├── assets/css/main.css           # Design tokens + shared component styles
+└── database/schema.sql           # Full Supabase/Postgres schema incl. RLS
+```
+
+## 1. Set up Supabase
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. Open **SQL Editor** and run the contents of `database/schema.sql`. This
+   creates every table from the spec (accounts, transactions, transfers,
+   liabilities, liability_payments, assets, savings_goals, tax_rules, and
+   all the Settings/lookup tables), plus Row Level Security policies scoped
+   to `auth.uid()`.
+3. Go to **Settings → API** and copy your **Project URL** and **anon public key**.
+4. Paste them into `core/config.js`:
+
+   ```js
+   export const SUPABASE_URL = 'https://xxxxx.supabase.co';
+   export const SUPABASE_ANON_KEY = 'eyJ...';
+   ```
+
+Until you do this, the app runs in **offline mode** — every page works
+against an in-memory store so you can build and click through the UI
+without a live backend. Data won't persist across reloads in that mode.
+
+## 2. Run locally
+
+Because pages load via `fetch()` and ES module `import`, you need a local
+HTTP server (not `file://`):
 
 ```bash
-cd project-money-pro
-python3 -m http.server 8080
-# then open http://localhost:8080
+cd money-pro
+npx serve .
+# or: python3 -m http.server 8080
 ```
 
-(Any static server works — `npx serve`, VS Code's Live Server, etc.)
+Then open the printed local URL in your browser.
 
-## How it's wired together
+## 3. Authentication
 
-```
-index.html                     loads fonts + core CSS/JS, mounts the shell
-  core/config.js                the single list of routes/pages — edit
-                                 this to add a new page, nothing else
-  core/database.js              localStorage adapter (DB) — swap for a
-                                 Google Sheet backend without touching
-                                 anything above it (see comments inside)
-  core/api.js                   business logic on top of DB: accounts,
-                                 assets, liabilities, transactions,
-                                 transfers, net worth
-  core/utils.js                 formatting + a tiny pub/sub (Utils.emit/on)
-  core/router.js                hash router (#/dashboard, #/accounts, ...)
-                                 fetches pages/*/*.html, injects its css,
-                                 loads its js, calls PageModule.init()
-  core/app.js                   boots everything, mounts sidebar/navbar/
-                                 modal, starts the router
+The schema's RLS policies key everything off `auth.uid()`, so you'll need
+to add a sign-in flow (Supabase Auth supports email/password, magic link,
+or OAuth) before writes will succeed against a real project. That wasn't
+in the diagram's page list, so it isn't scaffolded yet — happy to add a
+`pages/auth/` module with Supabase Auth wired in if you want it next.
 
-components/sidebar   nav generated from config.routes + live net worth
-components/navbar    page title + contextual "+ Add" button (reads
-                      `addAction` off the active page module)
-components/modal     shared modal shell every page's forms reuse
+## 4. How the tax engine works
 
-pages/dashboard       net worth hero + recent transactions
-pages/accounts        bank/cash/investment accounts, CRUD
-pages/assets           property/vehicle/investment holdings, CRUD
-pages/liabilities      loans/cards owed, CRUD
-pages/transactions      full ledger, filterable by account
-pages/transfer          move money between two accounts (no net-worth
-                         change — it's its own collection)
-pages/settings          currency, JSON export/import backup, reset demo data
-```
+`core/database.js` → `calculateTax(draftTransaction)` pulls all `active`
+rows from `tax_rules`, runs each one through `ruleMatches()` (checking
+transaction type, category, account, and min/max amount), and sums the
+matching rates against the transaction amount. Rules run in `priority`
+order and stack — this mirrors the "Trigger Detection → Rule Matching →
+Tax Calculation" flow in the spec. Manage rules from **Settings → Tax Rules**.
 
-Data flow is one-directional: **pages → core/api.js → core/database.js**.
-Pages never touch `localStorage` directly, so swapping the storage
-backend (e.g. to a real Google Sheet via a small Apps Script web app)
-only means editing `core/database.js`.
+## 5. What's stubbed vs. fully wired
 
-Everything re-renders reactively: any write in `core/api.js` fires a
-`data:changed` DOM event; the sidebar's net-worth figure and the
-current page's table both listen for it.
+- **Fully wired**: CRUD for accounts, transactions (with live tax
+  calculation + account balance updates), transfers, liabilities +
+  payments, assets, savings goals, all Settings lookup tables, and the
+  Dashboard's balance sheet / cash flow / insights.
+- **Not yet built**: user authentication UI, CSV/PDF export, and
+  Realtime live-sync across browser tabs (the `subscribe()` helper in
+  `core/api.js` is ready for it — just call it from a page's `init()`).
 
-## Demo data
+## Tech stack
 
-First run seeds a few sample accounts/assets/liabilities/transactions
-so the dashboard isn't empty. Reset it any time from **Settings**.
+HTML/CSS/JS · Supabase (Postgres, Auth, RLS, Realtime, Storage) · deploy to
+Vercel or Netlify.

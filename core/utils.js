@@ -1,48 +1,76 @@
-/* ============================================================
-   Money Pro — core/utils.js
-   Small stateless helpers shared by every page and component.
-   ============================================================ */
-window.Utils = {
-  uid() {
-    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-  },
+/**
+ * core/utils.js — formatting & small shared helpers
+ */
 
-  qs(sel, root) { return (root || document).querySelector(sel); },
-  qsa(sel, root) { return Array.from((root || document).querySelectorAll(sel)); },
+export function formatCurrency(amount, currency = 'USD', locale = 'en-US') {
+  const value = Number(amount || 0);
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+  }).format(value);
+}
 
-  escapeHtml(str) {
-    return String(str ?? "").replace(/[&<>"']/g, c => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-    }[c]));
-  },
+export function formatDate(dateStr, opts = {}) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric', month: 'short', day: '2-digit', ...opts,
+  }).format(d);
+}
 
-  formatMoney(amount, currency) {
-    const cur = currency || (window.Api ? window.Api.getSettings().currency : window.MoneyProConfig.defaultCurrency);
-    try {
-      return new Intl.NumberFormat("en-US", {
-        style: "currency", currency: cur, maximumFractionDigits: 2,
-      }).format(amount || 0);
-    } catch (e) {
-      return (amount || 0).toFixed(2) + " " + cur;
-    }
-  },
+export function formatPercent(value, decimals = 1) {
+  return `${Number(value || 0).toFixed(decimals)}%`;
+}
 
-  formatDate(iso) {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    return d.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
-  },
+export function signedClass(value) {
+  return Number(value) < 0 ? 'negative' : 'positive';
+}
 
-  todayISO() {
-    return new Date().toISOString().slice(0, 10);
-  },
+export function el(tag, attrs = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') node.className = v;
+    else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v);
+  }
+  for (const child of [].concat(children)) {
+    node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child);
+  }
+  return node;
+}
 
-  // Fires a DOM CustomEvent other modules (sidebar, navbar) listen for.
-  emit(name, detail) {
-    document.dispatchEvent(new CustomEvent(name, { detail }));
-  },
+export function debounce(fn, wait = 250) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), wait);
+  };
+}
 
-  on(name, handler) {
-    document.addEventListener(name, handler);
-  },
-};
+export function required(value, fieldName) {
+  if (value === null || value === undefined || value === '') {
+    throw new Error(`${fieldName} is required`);
+  }
+  return value;
+}
+
+export function toast(message, tone = 'info') {
+  const container = document.getElementById('toast-root') || createToastRoot();
+  const node = document.createElement('div');
+  node.className = `toast toast-${tone}`;
+  node.textContent = message;
+  container.appendChild(node);
+  requestAnimationFrame(() => node.classList.add('visible'));
+  setTimeout(() => {
+    node.classList.remove('visible');
+    setTimeout(() => node.remove(), 200);
+  }, 3200);
+}
+
+function createToastRoot() {
+  const root = document.createElement('div');
+  root.id = 'toast-root';
+  document.body.appendChild(root);
+  return root;
+}
