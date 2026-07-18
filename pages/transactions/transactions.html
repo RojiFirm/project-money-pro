@@ -1,29 +1,154 @@
 <section class="transaction-page">
 
-    <div class="page-header">
-        <h1>Transactions</h1>
+    <!-- ===========================
+         PAGE HEADER
+    ============================ -->
 
-        <button id="btnNewTransaction">
+    <div class="page-header">
+
+        <div>
+
+            <h1>Transactions</h1>
+
+            <p>
+                Manage all income and expense transactions.
+            </p>
+
+        </div>
+
+        <button
+            id="btnNewTransaction"
+            class="primary-btn">
+
             + New Transaction
+
         </button>
+
     </div>
 
-    <div class="transaction-table">
+    <!-- ===========================
+         SUMMARY CARDS
+    ============================ -->
+
+    <div class="summary-grid">
+
+        <div class="summary-card">
+
+            <h3>Total Income</h3>
+
+            <h2 id="totalIncome">
+                ₱0.00
+            </h2>
+
+        </div>
+
+        <div class="summary-card">
+
+            <h3>Total Expense</h3>
+
+            <h2 id="totalExpense">
+                ₱0.00
+            </h2>
+
+        </div>
+
+        <div class="summary-card">
+
+            <h3>Total Tax</h3>
+
+            <h2 id="totalTax">
+                ₱0.00
+            </h2>
+
+        </div>
+
+        <div class="summary-card">
+
+            <h3>Transactions</h3>
+
+            <h2 id="transactionCount">
+                0
+            </h2>
+
+        </div>
+
+    </div>
+
+    <!-- ===========================
+         FILTERS
+    ============================ -->
+
+    <div class="toolbar">
+
+        <input
+            type="text"
+            id="searchTransaction"
+            placeholder="Search transaction...">
+
+        <select id="filterType">
+
+            <option value="">All Types</option>
+
+            <option value="Income">
+                Income
+            </option>
+
+            <option value="Expense">
+                Expense
+            </option>
+
+        </select>
+
+        <select id="filterAccount">
+
+            <option value="">
+                All Accounts
+            </option>
+
+        </select>
+
+        <select id="filterCategory">
+
+            <option value="">
+                All Categories
+            </option>
+
+        </select>
+
+    </div>
+
+    <!-- ===========================
+         TRANSACTION TABLE
+    ============================ -->
+
+    <div class="table-container">
 
         <table>
 
             <thead>
 
                 <tr>
+
                     <th>ID</th>
+
                     <th>Date</th>
+
                     <th>Type</th>
+
                     <th>Category</th>
+
                     <th>Account</th>
+
                     <th>Amount</th>
+
                     <th>Tax</th>
+
                     <th>Net</th>
+
                     <th>Description</th>
+
+                    <th>Action</th>
+
                 </tr>
 
             </thead>
@@ -38,60 +163,200 @@
 
 </section>
 
-<!-- Modal -->
+<!-- ======================================================
+     QUICK TRANSACTION MODAL
+====================================================== -->
 
-<div id="transactionModal" class="modal hidden">
+<div
+    id="transactionModal"
+    class="modal hidden">
 
     <div class="modal-content">
 
-        <h2>Quick Transaction</h2>
+        <div class="modal-header">
+
+            <h2>
+
+                Quick Transaction
+
+            </h2>
+
+            <button
+                id="btnCloseModal">
+
+                ✕
+
+            </button>
+
+        </div>
 
         <form id="transactionForm">
 
+            <!-- DATE -->
+
             <label>Date</label>
-            <input type="date" id="date">
+
+            <input
+                type="date"
+                id="date"
+                required>
+
+            <!-- TYPE -->
 
             <label>Type</label>
-            <select id="type">
-                <option>Income</option>
-                <option>Expense</option>
+
+            <select
+                id="type"
+                required>
+
+                <option value="">
+                    Select Type
+                </option>
+
+                <option>
+                    Income
+                </option>
+
+                <option>
+                    Expense
+                </option>
+
             </select>
 
+            <!-- CATEGORY -->
+
             <label>Category</label>
-            <select id="category"></select>
+
+            <select
+                id="category"
+                required>
+
+                <option value="">
+                    Select Category
+                </option>
+
+            </select>
+
+            <!-- ACCOUNT -->
 
             <label>Account</label>
-            <select id="account"></select>
+
+            <select
+                id="account"
+                required>
+
+                <option value="">
+                    Select Account
+                </option>
+
+            </select>
+
+            <!-- AMOUNT -->
 
             <label>Amount</label>
-            <input type="number" id="amount">
+
+            <input
+                type="number"
+                id="amount"
+                min="0"
+                step="0.01"
+                required>
+
+            <!-- TAX -->
 
             <label>Tax Type</label>
-            <select id="taxType"></select>
+
+            <select id="taxType">
+
+                <option value="">
+                    None
+                </option>
+
+            </select>
+
+            <!-- ADDITIONAL TAX -->
 
             <label>Additional Tax</label>
-            <select id="additionalTax"></select>
+
+            <select id="additionalTax">
+
+                <option value="">
+                    None
+                </option>
+
+            </select>
+
+            <!-- DESCRIPTION -->
 
             <label>Description</label>
-            <textarea id="description"></textarea>
 
-            <hr>
+            <textarea
+                id="description"
+                rows="4"></textarea>
 
-            <p>Tax Amount :
-                <span id="taxAmount">₱0.00</span>
-            </p>
+            <!-- PREVIEW -->
 
-            <p>Additional Tax :
-                <span id="additionalTaxAmount">₱0.00</span>
-            </p>
+            <div class="preview-box">
 
-            <p>Net Amount :
-                <span id="netAmount">₱0.00</span>
-            </p>
+                <div>
 
-            <button type="submit">
-                Save Transaction
-            </button>
+                    Tax Amount
+
+                    <strong id="taxAmount">
+
+                        ₱0.00
+
+                    </strong>
+
+                </div>
+
+                <div>
+
+                    Additional Tax
+
+                    <strong id="additionalTaxAmount">
+
+                        ₱0.00
+
+                    </strong>
+
+                </div>
+
+                <div>
+
+                    Net Amount
+
+                    <strong id="netAmount">
+
+                        ₱0.00
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <!-- BUTTONS -->
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    id="btnCancel">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    type="submit"
+                    id="btnSaveTransaction">
+
+                    Save Transaction
+
+                </button>
+
+            </div>
 
         </form>
 
