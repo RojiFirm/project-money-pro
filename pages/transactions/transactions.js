@@ -613,34 +613,34 @@ filterAccount.addEventListener("change", filterTransactions);
 
 
 /* ==========================================================
-    LOAD SAMPLE DATA (dropdown options — unrelated to storage)
+    LOAD DROPDOWN LISTS (from Settings sheet)
 ==========================================================*/
 
-function loadSampleLists() {
+async function loadDropdownLists() {
 
-    const categories = ["Salary","Freelance","Food","Transportation","Bills","Shopping"];
+    const response = await fetch(`${API_URL}?resource=settings`);
+    const settings = await response.json();
 
-    categories.forEach(item => {
+    const byType = (type) =>
+        settings.filter(s => s.type === type).map(s => s.value);
+
+    byType("category").forEach(item => {
         categoryInput.innerHTML += `<option>${item}</option>`;
         filterCategory.innerHTML += `<option>${item}</option>`;
     });
 
-    const accounts = ["Cash","Bank","GCash"];
-
-    accounts.forEach(item => {
+    byType("account").forEach(item => {
         accountInput.innerHTML += `<option>${item}</option>`;
         filterAccount.innerHTML += `<option>${item}</option>`;
     });
 
-    taxTypeInput.innerHTML += `
-        <option>Income Tax</option>
-        <option>VAT</option>
-    `;
+    byType("taxType").forEach(item => {
+        taxTypeInput.innerHTML += `<option>${item}</option>`;
+    });
 
-    additionalTaxInput.innerHTML += `
-        <option>Service Charge</option>
-        <option>Custom Tax</option>
-    `;
+    byType("additionalTax").forEach(item => {
+        additionalTaxInput.innerHTML += `<option>${item}</option>`;
+    });
 
 }
 
@@ -651,8 +651,7 @@ function loadSampleLists() {
 
 async function initializeTransactions() {
 
-    loadSampleLists();
-
+    await loadDropdownLists();
     await loadFromSheet();
 
     renderTransactions();

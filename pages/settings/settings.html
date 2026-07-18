@@ -1,1 +1,70 @@
-<h2>Settings</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings - Project Money Pro</title>
+<link rel="stylesheet" href="settings.css">
+</head>
+<body>
+
+  <div class="settings-page">
+
+    <header class="settings-header">
+      <h1>Settings</h1>
+      <p>Manage the dropdown lists used across Project Money Pro.</p>
+    </header>
+
+    <div class="settings-grid">
+
+      <section class="settings-card" data-type="category">
+        <h2>Categories</h2>
+
+        <form class="add-form">
+          <input type="text" class="add-input" placeholder="e.g. Groceries" required>
+          <button type="submit">Add</button>
+        </form>
+
+        <ul class="settings-list"></ul>
+      </section>
+
+      <section class="settings-card" data-type="account">
+        <h2>Accounts</h2>
+
+        <form class="add-form">
+          <input type="text" class="add-input" placeholder="e.g. Maya" required>
+          <button type="submit">Add</button>
+        </form>
+
+        <ul class="settings-list"></ul>
+      </section>
+
+      <section class="settings-card" data-type="taxType">
+        <h2>Tax Types</h2>
+
+        <form class="add-form">
+          <input type="text" class="add-input" placeholder="e.g. Withholding Tax" required>
+          <button type="submit">Add</button>
+        </form>
+
+        <ul class="settings-list"></ul>
+      </section>
+
+      <section class="settings-card" data-type="additionalTax">
+        <h2>Additional Tax Types</h2>
+
+        <form class="add-form">
+          <input type="text" class="add-input" placeholder="e.g. Local Tax" required>
+          <button type="submit">Add</button>
+        </form>
+
+        <ul class="settings-list"></ul>
+      </section>
+
+    </div>
+
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>
