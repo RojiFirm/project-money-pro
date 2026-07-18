@@ -47,7 +47,7 @@ const filterAccount = document.getElementById("filterAccount");
     for clarity — move it if you prefer.
 ==========================================================*/
 
-const API_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+const API_URL = "https://script.google.com/macros/s/AKfycbyplFP6eG8LTocJyIHMLqXbXnmfVIiC6Jycu6hiRZQMbYSkrSpgxGxY3THuvoh027WydA/exec";
 
 let transactions = [];
 
