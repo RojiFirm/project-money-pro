@@ -5,7 +5,7 @@
 
 /* Same Web App URL used in transactions.js — move both to
    core/config.js once you're ready to share it across pages. */
-const API_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+const API_URL = "https://script.google.com/macros/s/AKfycbyplFP6eG8LTocJyIHMLqXbXnmfVIiC6Jycu6hiRZQMbYSkrSpgxGxY3THuvoh027WydA/exec";
 
 let settings = []; // [{ type: "category", value: "Salary" }, ...]
 
