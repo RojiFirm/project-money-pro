@@ -1,7 +1,7 @@
 const pages = {
 
     dashboard: "pages/dashboard/dashboard.html",
-    transactions: "pages/transaction/transaction.html",
+    transactions: "pages/transactions/transactions.html",
     transfer: "pages/transfer/transfer.html",
     accounts: "pages/accounts/accounts.html",
     liabilities: "pages/liabilities/liabilities.html",
